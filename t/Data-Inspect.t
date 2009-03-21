@@ -5,7 +5,17 @@
 
 use strict;
 use warnings;
-use Test::More tests => 14;
+
+use Config;
+use Test::More;
+
+# The testing of STDOUT only works if this Perl has useperlio set.
+BEGIN {
+  my $tests = 11;
+  if ($Config{useperlio}) { $tests += 4; }
+  plan tests => $tests;
+}
+
 BEGIN { use_ok('Data::Inspect', 'p') };
 
 #########################
@@ -46,14 +56,23 @@ package Inspectable;
 sub new { my ($c,%a) = @_; bless \%a, $c }
 sub inspect { "#<Inspectable id=$_[0]->{id}>" }
 
+package Inspectable::Recursive;
+
+sub new { my ($c,%a) = @_; bless \%a, $c }
+sub inspect { "#<Inspectable::Recursive hash=".
+		$_[1]->inspect($_[0]->{hash}).">" }
+
 package main;
 
 # Check instances of these look correct
 my $simple = Simple->new(id => 42, foo => 'bar');
 my $inspectable = Inspectable->new(id => 42, foo => 'bar');
+my $recursive = Inspectable::Recursive->new(id => 42, hash => {foo => 'bar'});
 
 is($insp->inspect($simple), '#<Simple {"foo" => "bar", "id" => 42}>');
 is($insp->inspect($inspectable), '#<Inspectable id=42>');
+is($insp->inspect($recursive),
+   '#<Inspectable::Recursive hash={"foo" => "bar"}>');
 
 # Check the truncating of strings
 is($insp->inspect("Supercalifragilisticexpialidocious"),
@@ -64,25 +83,29 @@ is($insp->inspect("Supercalifragilisticexpialidocious"),
 
 # Finally, we need to check the printing works.
 
+if ($Config{useperlio}) {
+
 # Open an in-memory filehandle to print things into
-my $output;
-open(my $ofh, '>', \$output);
-select $ofh;
+  my $output;
+  open(my $ofh, '>', \$output);
+  select $ofh;
 
-$insp->p(\@array);
-is($output, qq{[1, 2, "foo", "5.67"]\n});
-$insp->p(\%hash);
-is($output, qq{[1, 2, "foo", "5.67"]\n{"a" => "b", "c" => "3.45"}\n});
-close $ofh;
+  $insp->p(\@array);
+  is($output, qq{[1, 2, "foo", "5.67"]\n});
+  $insp->p(\%hash);
+  is($output, qq{[1, 2, "foo", "5.67"]\n{"a" => "b", "c" => "3.45"}\n});
+  close $ofh;
 
-open($ofh, '>', \$output);
-select $ofh;
-$insp->p(\@array, \%hash);
-is($output, qq{[1, 2, "foo", "5.67"]\n{"a" => "b", "c" => "3.45"}\n});
-close $ofh;
+  open($ofh, '>', \$output);
+  select $ofh;
+  $insp->p(\@array, \%hash);
+  is($output, qq{[1, 2, "foo", "5.67"]\n{"a" => "b", "c" => "3.45"}\n});
+  close $ofh;
 
-open($ofh, '>', \$output);
-select $ofh;
-p \@array, \@array; # can't test the hash because of key ordering
-is($output, qq{[1, 2, "foo", "5.67"]\n[1, 2, "foo", "5.67"]\n});
-close $ofh;
+  open($ofh, '>', \$output);
+  select $ofh;
+  p \@array, \@array;	 # can't test the hash because of key ordering
+  is($output, qq{[1, 2, "foo", "5.67"]\n[1, 2, "foo", "5.67"]\n});
+  close $ofh;
+
+}

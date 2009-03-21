@@ -25,7 +25,7 @@ It is especially useful in an object-oriented system, since each class
 can define its own C<inspect> method, indicating how that particular
 object should be displayed.
 
-The L<p> method inspects its arguments and outputs them to the default
+The L</p> method inspects its arguments and outputs them to the default
 filehandle. It can be exported to your package's namespace, in which
 case it will silently create the Inspect object with the default
 options, if this sort of brevity is desired.
@@ -34,7 +34,7 @@ options, if this sort of brevity is desired.
 
 package Data::Inspect;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use strict;
 use warnings;
@@ -92,7 +92,7 @@ sub p {
 
   $insp->pe($var1, $var2);
 
-Exactly like L<p> but outputs to STDERR instead of the default
+Exactly like L</p> but outputs to STDERR instead of the default
 filehandle.
 
 =cut
@@ -106,7 +106,7 @@ sub pe {
 
   $insp->pf($somefh, $var1, $var2);
 
-Like L<p> and L<pe> but outputs to the filehandle specified in the
+Like L</p> and L</pe> but outputs to the filehandle specified in the
 first argument.
 
 Note that the filehandle must be a reference. If you want to use a
@@ -133,11 +133,12 @@ Inspects the given scalar value and returns the result.
 sub inspect {
   my ($self, $val) = @_;
 
-  # If no $val is provided, someone is probably trying to inspect this
-  # object!
-  return "#<Inspect options=".$self->inspect($self->{options}).">"
-    unless @_ > 1;
-
+  # If no $val is provided or $val is $self, someone is probably
+  # trying to inspect this object!
+  if (@_ < 2 or (ref $val and
+      Scalar::Util::refaddr($val) == Scalar::Util::refaddr($self))) {
+    return "#<Inspect options=".$self->inspect($self->{options}).">";
+  }
 
   # If it's a reference, we delegate it to _inspect_reference
   if (ref $val) {
@@ -249,7 +250,7 @@ sub _inspect_object {
   my ($self, $val) = @_;
   # Object's class defines an 'inspect'
   if ($val->can('inspect')) {
-    return $val->inspect;
+    return $val->inspect($self);
   }
   # Otherwise return the object's class name followed by an inspection
   # of the underlying representation.
@@ -324,7 +325,7 @@ sub _inspect_other {
 
 =head2 Inspecting built-in Perl types
 
-In this example, we use the L<p> method to output the inspected contents
+In this example, we use the L</p> method to output the inspected contents
 of a Perl hash:
 
   use Data::Inspect qw(p);
@@ -343,7 +344,7 @@ C<id>; so we create an inspect method that just displays that C<id>:
   package Wibble;
 
   sub inspect {
-    my $self = shift;
+    my ($self, $insp) = @_;
     "#<Wibble id=$self->{id}>";
   }
 
@@ -357,12 +358,25 @@ The output will be something like:
 
   {"bar" => #<Wibble id=42>, "baz" => #<Wibble id=667>, "foo" => #<Wibble id=1>}
 
+=head2 Recursive inspecting
+
+@_[1] is set to the current Data::Inspect object in calls to object's
+C<inspect> methods. This allows you to recursively inspect data
+structures contained within the object, such as hashes:
+
+  package Wibble;
+
+  sub inspect {
+    my ($self, $insp) = @_;
+    "#<Wibble id=$self->{id} data=".$insp->inspect($self->{data}).">";
+  }
+
 =head2 Using Data::Inspect in the OO form
 
 The OO form provides a greater degree of flexibility than just
-importing the L<p> method. The behaviour of Data::Inspect can be
-modified using the L<set_option> method and there is also an
-L<inspect> method that returns the inspected form rather than
+importing the L</p> method. The behaviour of Data::Inspect can be
+modified using the L</set_option> method and there is also an
+L</inspect> method that returns the inspected form rather than
 outputting it.
 
   use Data::Inspect;
@@ -381,8 +395,15 @@ Outputs:
 
 L<Data::Dumper>
 
-The Ruby documentation for Object#inspect and Kernel#p at
+The Ruby documentation for C<Object#inspect> and C<Kernel#p> at
 http://www.ruby-doc.org/core/
+
+=head1 CHANGES
+
+  - 0.02 Added support and documentation for recursive inspecting.
+         Fixed tests on versions of perl built without useperlio.
+
+  - 0.01 Initial revision
 
 =head1 AUTHOR
 
