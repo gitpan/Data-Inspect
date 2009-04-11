@@ -34,7 +34,7 @@ options, if this sort of brevity is desired.
 
 package Data::Inspect;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use strict;
 use warnings;
@@ -51,9 +51,9 @@ our @EXPORT_OK = qw(p pe pf);
 
 =item new
 
-  my $insp = Inspect->new;
+  my $insp = Data::Inspect->new;
 
-Create a new Inspect object.
+Create a new Data::Inspect object.
 
 =cut
 
@@ -72,14 +72,14 @@ sub new {
 
   $insp->p($var1, $var2);
 
-  use Inspect qw(p);
+  use Data::Inspect qw(p);
   p $var1, $var2;
 
 Inspects each of the provided arguments and outputs the result to the
 default filehandle (usually STDOUT).
 
 C<p> can be exported to the current namespace if you don't want to
-create an Inspect object to do your inspecting for you.
+create a Data::Inspect object to do your inspecting for you.
 
 =cut
 
@@ -160,13 +160,23 @@ Inspect.
 
 Available options are:
 
-  truncate_strings: If set to a positive integer, truncates strings
-  after that number of characters, replacing the end with
-  '...'. [default: undef]
+=over
 
-  sort_keys: If set to the string 'cmp' or '<=>', hashes will have
-  their keys sorted using the specified comparison before being
-  output. [default: undef]
+=item truncate_strings
+
+If set to a positive integer, truncates strings after that number of
+characters, replacing the end with '...'.
+
+default: undef
+
+=item sort_keys
+
+If set to the string 'cmp' or '<=>', hashes will have their keys
+sorted using the specified comparison before being output.
+
+default: undef
+
+=back
 
 =cut
 
@@ -179,7 +189,7 @@ sub set_option {
   $self->{options}{$option} = $value;
 }
 
-=back 
+=back
 
 =cut
 
@@ -342,7 +352,7 @@ containing a lot of data. They are uniquely identifiable by one key,
 C<id>; so we create an inspect method that just displays that C<id>:
 
   package Wibble;
-
+  
   sub inspect {
     my ($self, $insp) = @_;
     "#<Wibble id=$self->{id}>";
@@ -360,9 +370,9 @@ The output will be something like:
 
 =head2 Recursive inspecting
 
-@_[1] is set to the current Data::Inspect object in calls to object's
-C<inspect> methods. This allows you to recursively inspect data
-structures contained within the object, such as hashes:
+$_[1] is set to the current Data::Inspect object in calls to an
+object's C<inspect> method. This allows you to recursively inspect
+data structures contained within the object, such as hashes:
 
   package Wibble;
 
@@ -381,10 +391,10 @@ outputting it.
 
   use Data::Inspect;
   my $insp = Data::Inspect->new;
-
+  
   # Strings are truncated if they are more than 10 characters long
   $insp->set_option('truncate_strings', 10);
-
+  
   $insp->p("Supercalifragilisticexpialidocious");
 
 Outputs:
@@ -399,6 +409,8 @@ The Ruby documentation for C<Object#inspect> and C<Kernel#p> at
 http://www.ruby-doc.org/core/
 
 =head1 CHANGES
+
+  - 0.03 Fixed documentation and tests further.
 
   - 0.02 Added support and documentation for recursive inspecting.
          Fixed tests on versions of perl built without useperlio.

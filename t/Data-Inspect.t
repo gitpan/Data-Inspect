@@ -9,10 +9,11 @@ use warnings;
 use Config;
 use Test::More;
 
-# The testing of STDOUT only works if this Perl has useperlio set.
+# The testing of STDOUT only works if this Perl is configured to
+# support in-memory filehandles.
 BEGIN {
   my $tests = 11;
-  if ($Config{useperlio}) { $tests += 4; }
+  if ($] >= 5.008 and $Config{useperlio}) { $tests += 4; }
   plan tests => $tests;
 }
 
@@ -83,7 +84,7 @@ is($insp->inspect("Supercalifragilisticexpialidocious"),
 
 # Finally, we need to check the printing works.
 
-if ($Config{useperlio}) {
+if ($] >= 5.008 and $Config{useperlio}) {
 
 # Open an in-memory filehandle to print things into
   my $output;
