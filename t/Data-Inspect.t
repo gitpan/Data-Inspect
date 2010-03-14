@@ -45,7 +45,7 @@ is($insp->inspect(\%hash),  '{"a" => "b", "c" => "3.45"}');
 # Inspect a common class
 use IO::Dir;
 my $dir = IO::Dir->new('.');
-like($insp->inspect($dir), qr/^#<IO::Dir #<GLOB NAME="GEN0" SCALAR=\\undef HASH={"io_dir_path" => "\."} IO=#<IO::Handle #<IO>> GLOB=#<CIRCULAR REFERENCE 0x[\da-f]+> PACKAGE="Symbol">>$/);
+like($insp->inspect($dir), qr/^#<IO::Dir #<GLOB NAME="GEN0" SCALAR=\\undef HASH={"io_dir_path" => "\."} IO=#<IO::(?:Handle|File) #<IO>> GLOB=#<CIRCULAR REFERENCE 0x[\da-f]+> PACKAGE="Symbol">>$/);
 
 # Create a simple hash-based package and one with an inspect method
 package Simple;
