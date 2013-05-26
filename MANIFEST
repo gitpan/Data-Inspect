@@ -1,7 +1,17 @@
 Changes
-Makefile.PL
+LICENSE
 MANIFEST
+META.json
+META.yml
+Makefile.PL
 README
-t/Data-Inspect.t
+README.pod
+cpanfile
+dist.ini
 lib/Data/Inspect.pm
-META.yml                                 Module meta-data (added by MakeMaker)
+t/00-compile.t
+t/inspect.t
+t/release-eol.t
+t/release-no-tabs.t
+t/release-pod-coverage.t
+t/release-pod-syntax.t

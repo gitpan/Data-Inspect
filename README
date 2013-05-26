@@ -1,34 +1,13 @@
-Data-Inspect version 0.03
-=========================
 
-Data::Inspect provides a way of displaying objects and data structures
-in a human-readable form.
 
-See the perldoc for Data::Inspect for more information.
+This archive contains the distribution Data-Inspect,
+version 0.01:
 
-INSTALLATION
+  Data::Printer but autoboxed
 
-To install this module type the following:
+This software is copyright (c) 2013 by Logan Bell.
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
-DEPENDENCIES
 
-This module requires these other modules and libraries:
-
-  Data::Dumper
-  Scalar::Util
-
-Both of which are in the core distribution.
-
-COPYRIGHT AND LICENCE
-
-Put the correct copyright and licence information here.
-
-Copyright (C) 2009 Rich Daley. All rights reserved.
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
